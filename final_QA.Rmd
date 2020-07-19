@@ -1,0 +1,191 @@
+---
+title: "204166524"
+author: '204166524'
+date: "19 7 2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("IQCC")
+library(IQCC)
+```
+
+## Q1
+
+```{r, echo=TRUE}
+paste("1.1")
+seed <- 204166524
+set.seed(seed)
+x <- rnorm(100)
+```
+
+```{r, echo=TRUE}
+paste("1.2")
+paste(" The first observation in the data is: ", x[1])
+```
+
+```{r, echo=TRUE}
+paste("1.3")
+mu <- mean(x)
+USL <- 2
+LSL <- -2
+range1 <- max(x)- min(x)
+d2 <- d2(length(x))
+paste("d2 : ", d2)
+sigma <- (range1)/d2
+Cpu <- (USL-mu)/(3*sigma)
+Cpl <- (mu-LSL)/(3*sigma)
+paste("Mean : ",mu )
+paste("Range : ",range1 )
+paste("Cpu :", Cpu)
+paste("Cpl :", Cpl)
+Cpk <- min(c(Cpu,Cpl))
+paste ("Cpk : " , Cpk)
+
+```
+
+```{r, echo=TRUE}
+paste("1.4")
+Cp <- ((USL-LSL)/(6*sigma))
+paste("Cp : ",Cp)
+n <- 100
+alpha <- 0.05
+L_Limit <- Cp*sqrt(qchisq ( ( (alpha)/2) ,(n-1) )/ (n-1))
+U_Limit <- Cp*sqrt(qchisq ( ( (1-(alpha) )/ 2), (n-1))/ (n-1))
+
+
+paste( "The interval estimation for Capability Indexes is: [", L_Limit, ",",U_Limit , "]" )
+
+```
+```{r, echo=TRUE}
+paste("2.1")
+seed <- 203740246
+set.seed(seed)
+periods.1 <- 100
+phase.1 <- rnorm(periods.1)
+mu0 <- mean(phase.1)
+sd0 <- sd(phase.1)
+
+```
+```{r, echo=TRUE}
+paste("2.2")
+L <- 3
+CL <- mu0
+n <- length(periods.1)
+UCL <- CL+L*sd0/sqrt(1) # double check~!!!!!!!!
+LCL <- CL-L*sd0/sqrt(1) #  double check~!!!!!!!!
+paste("The control limits are:")
+paste("LCL :", LCL)
+paste("UCL :", UCL)
+
+```
+```{r, echo=TRUE}
+paste("2.3")
+paste("From the code above, the actual expectancy is 0 and the standard deviation is 1.
+       It can be inferred from the forth line of the attached code,
+       when we sample 100 random numbers from standard normal distribution")
+
+```
+```{r, echo=TRUE}
+paste("2.4")
+seed <- 204166524
+set.seed(seed)
+periods.2 <- 1e4
+phase.2 <- rnorm(periods.2) # generate another 10,000 samples
+
+```
+
+```{r, echo=TRUE}
+paste("2.5")
+alpha <- 2700/1e6
+ARL0 <- 1/alpha
+
+l <- c(0)
+gap <- 0
+for (i in 1:length(phase.2)){
+  gap <- gap+1
+  if (phase.2[i] > UCL || phase.2[i] < LCL) {
+    l<-c(l,gap)
+    gap <- 0 
+  }
+}
+
+l[-c(1)] # remove the first elemnt of the list 
+simulated_ARL0 <- mean(l)
+paste("simulated_ARL0 :", simulated_ARL0)
+paste("We can see that the ARL0 is smaller in the simulation I made, which means more false alerms are produced.")
+
+```
+```{r, echo=TRUE}
+paste("3.1")
+seed <- 204166524
+set.seed(seed)
+periods <- 100
+p <- 5
+data <- matrix(rnorm(periods*p), nrow = periods)
+Phase1_mat<- data[1:50,] # first 50 rows of the data for phase 1
+
+alpha_star <- 0.1
+alpha <- 1 - (1 - alpha_star)^(1/p)
+
+CL3 <- c(0)
+SD3 <- c(0)
+UCL3 <- c(0)
+LCL3 <- c(0)
+for (i in 1:5){
+  temp_cl3 <- mean(Phase1_mat[1:50,i])
+  temp_sd3 <- sd(Phase1_mat[1:50,i])
+  
+  CL3 <- c(CL3, temp_cl3)
+  SD3 <- c(SD3, temp_sd3)
+  
+  UCL3 <- c(UCL3, CL3[i+1]+L*SD3[i+1]/sqrt(1))
+  LCL3 <- c(LCL3, CL3[i+1]-L*SD3[i+1]/sqrt(1))
+}
+for (p in 1:5){
+paste("p) LCL :", LCL3[p], "UCL :", UCL3[p])
+}
+```  
+  
+  
+```{r, echo=TRUE}
+for (i in 1:50){
+  for (p in 1:5){
+    if (Phase1_mat[i][p] > UCL3[p] || Phase1_mat[i][p] < LCL3[p]){
+      
+    }
+      
+  }
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, echo=TRUE}
+paste("5.1")
+seed <- 204166524
+set.seed(seed)
+n <- 100
+p <- 10
+X <- matrix(rnorm(n*p), nrow = n)
+mod <- 2^15
+beta <- rep((seed %/% mod)/mod, p)
+y <- exp(X %*% beta)
+
+```
+
+
