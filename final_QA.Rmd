@@ -59,6 +59,7 @@ U_Limit <- Cp*sqrt(qchisq ( ( (1-(alpha) )/ 2), (n-1))/ (n-1))
 paste( "The interval estimation for Capability Indexes is: [", L_Limit, ",",U_Limit , "]" )
 
 ```
+
 ```{r, echo=TRUE}
 paste("2.1")
 seed <- 203740246
@@ -69,6 +70,7 @@ mu0 <- mean(phase.1)
 sd0 <- sd(phase.1)
 
 ```
+
 ```{r, echo=TRUE}
 paste("2.2")
 L <- 3
@@ -81,6 +83,7 @@ paste("LCL :", LCL)
 paste("UCL :", UCL)
 
 ```
+
 ```{r, echo=TRUE}
 paste("2.3")
 paste("From the code above, the actual expectancy is 0 and the standard deviation is 1.
@@ -88,6 +91,7 @@ paste("From the code above, the actual expectancy is 0 and the standard deviatio
        when we sample 100 random numbers from standard normal distribution")
 
 ```
+
 ```{r, echo=TRUE}
 paste("2.4")
 seed <- 204166524
@@ -118,60 +122,157 @@ paste("simulated_ARL0 :", simulated_ARL0)
 paste("We can see that the ARL0 is smaller in the simulation I made, which means more false alerms are produced.")
 
 ```
+
+
 ```{r, echo=TRUE}
 paste("3.1")
 seed <- 204166524
 set.seed(seed)
 periods <- 100
 p <- 5
+alpha_star <- 0.1
+alpha <- 1 - (1 - alpha_star)^(1/p)
+L <- -qnorm(alpha/2)
 data <- matrix(rnorm(periods*p), nrow = periods)
 Phase1_mat<- data[1:50,] # first 50 rows of the data for phase 1
 
-alpha_star <- 0.1
-alpha <- 1 - (1 - alpha_star)^(1/p)
 
-CL3 <- c(0)
-SD3 <- c(0)
-UCL3 <- c(0)
-LCL3 <- c(0)
+
+
+CL3 <-  empty_vec <- rep(NA, 5)
+SD3 <- rep(NA, 5)
+UCL3 <- rep(NA, 5)
+LCL3 <- rep(NA, 5)
+
+CL33 <-colMeans(Phase1_mat)
+SD33 <- apply(Phase1_mat, 2, sd)
+
 for (i in 1:5){
   temp_cl3 <- mean(Phase1_mat[1:50,i])
   temp_sd3 <- sd(Phase1_mat[1:50,i])
   
-  CL3 <- c(CL3, temp_cl3)
-  SD3 <- c(SD3, temp_sd3)
+  CL3[i] <- temp_cl3
+  SD3[i] <- temp_sd3
   
-  UCL3 <- c(UCL3, CL3[i+1]+L*SD3[i+1]/sqrt(1))
-  LCL3 <- c(LCL3, CL3[i+1]-L*SD3[i+1]/sqrt(1))
+  UCL3[i] <- CL3[i]+L*SD3[i]/sqrt(1) # emprical distbition
+  LCL3[i] <- CL3[i]-L*SD3[i]/sqrt(1) # emprical distbition
 }
 for (p in 1:5){
-paste("p) LCL :", LCL3[p], "UCL :", UCL3[p])
+paste("p) LCL :", LCL3[p], "UCL :", UCL3[p]) # check why not printing ~!!!!
 }
 ```  
   
   
 ```{r, echo=TRUE}
-for (i in 1:50){
-  for (p in 1:5){
-    if (Phase1_mat[i][p] > UCL3[p] || Phase1_mat[i][p] < LCL3[p]){
-      
-    }
-      
-  }
-}
+paste("3.2")
+
+x <- Phase1_mat
+n <- nrow(Phase1_mat)
+mu0 <- CL3
+sigma0 <- cor(Phase1_mat) # cov matrix
+sigma0.inv <-  sigma0.inv <- solve(sigma0) # inverse cov matrix
+valid <- sigma0 %*% sigma0.inv # sanity check
+
+prmatrix(sigma0.inv, rowlab =, collab =,
+         quote = TRUE, right = FALSE, na.print = NULL)
+
+t_squre <- n * (x-mu0) %*% sigma0.inv %*% t((x-mu0))
+UCL_3.2 <- qchisq ( ( (1-(alpha) )), (5))
+
+paste("Hotteling’s UCL: ", UCL_3.2)
+
+paste("when alpha is set to 10%, the ARL0 is 1/alpha :", 1/0.1)
 
 ```
 
 
 
 
+```{r, echo=TRUE}
+paste("3.3")
+
+Phase2_vec_2 <- data[51:100,2]
+n <- nrow(Phase2_vec_2)
+sd_3.2 <- SD3[2] 
+
+Rule1 <- function(x, sd){
+     result <- FALSE
+     if( sum(x > CL3[2]+3*sd)>0){
+       result <- TRUE}
+     if( sum(x < CL3[2]-3*sd)>0){
+       result <- TRUE}
+     return(result)
+    }
+ 
+
+Rule2 <- function(x, sd){
+    result <- FALSE
+      if( (sum(x > CL3[2]+2*sd && x < CL3[2]+3*sd )) > 1) # although the "and" is unnecessary because the first rule is always checked first
+        result = TRUE
+      if( (sum(x < CL3[2]-2*sd && x > CL3[2]-3*sd ))> 1 ) # although the "and" is unnecessary because the first rule is always checked first
+        result = TRUE
+      return(result)
+     }
+
+
+
+Rule3 <- function(x, sd){
+    result <- FALSE
+     if( (sum(x > CL3[2]+ 1*sd))>=4)
+       result = TRUE
+     if( (sum(x < CL3[2]- 1*sd))>=4)
+       result = TRUE
+     return(result)
+     }
+
+
+Rule4 <- function(x,sd){
+    result <- FALSE
+     if( sum(x > CL3[2]) >=8) result <- TRUE
+     if( sum(x < -CL3[2])>=8) result <- TRUE
+     return(result)
+}
+
+sum <- 0
+for(i in 1:50){
+    x<-c(Phase2_vec_2[i])
+    if(Rule1(x,sd_3.2)) {
+      sum <- sum+1 }
+    
+    if (i >= 3) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2])
+      if(Rule2(x,sd_3.2)==TRUE) {
+        sum <- sum+1 }}
+    
+    if (i >= 5) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4])
+      if(Rule3(x,sd_3.2)==TRUE) {
+        sum <- sum+1 }}
+    
+    if (i >= 8) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7])
+      if(Rule4(x,sd_3.2)==TRUE) {
+        sum <- sum+1 }}
+    if (sum > 0){
+      print(i)
+      break}
+}
+
+
+
+```
 
 
 
 
+```{r, echo=TRUE}
+bb <- c(3,3,2)
 
 
+re <- if(sum(bb > 2 ) >1) re = TRUE
+print(re)
 
+```
 
 
 
