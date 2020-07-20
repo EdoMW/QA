@@ -14,6 +14,7 @@ suppressPackageStartupMessages(library(FrF2))
 ```
 
 # Question 1
+
 ## 1.1
 ```{r, echo=TRUE}
 seed <- 204166524
@@ -51,6 +52,7 @@ The interval estimation for $C_{p}$ is:
 
 $C_{p} \in \big[$ `r L_Limit` , `r U_Limit` $\big]$
 # Question 2
+
 ## 2.1
 ```{r, echo=TRUE}
 set.seed(seed)
@@ -111,9 +113,10 @@ Simulated_ARL0 : `r simulated_ARL0`
 We can see that the ARL0 is smaller in the simulation I made, which means more false alerms are produced.
 
 # Question 3
+
 ## 3.1
 ```{r, echo=TRUE}
-set.seed(seed + 1)
+set.seed(seed)
 periods <- 100
 p <- 5
 alpha <- 0.1
@@ -191,7 +194,6 @@ Rule1 <- function(x, sd){
        result <- TRUE}
      return(result)
     }
- 
 
 Rule2 <- function(x, sd){
     result <- FALSE
@@ -201,8 +203,6 @@ Rule2 <- function(x, sd){
         {result = TRUE}
       return(result)
      }
-
-
 
 Rule3 <- function(x, sd){
     result <- FALSE
@@ -271,82 +271,84 @@ Rule8 <- function(x, sd){
      return(result)
      }
 
-
 sum <- 0
 for(i in 1:50){
     x<-c(Phase2_vec_2[i])
     if(Rule1(x,sd_3.2)) {
+      print("rule 1")
       sum <- sum+1 }
     
     if (i >= 3) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2])
       if(Rule2(x,sd_3.2)==TRUE) {
+        print("rule 2")
         sum <- sum+1 }}
     
     if (i >= 5) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4])
       if(Rule3(x,sd_3.2)==TRUE) {
+        print("rule 3")
         sum <- sum+1 }}
     
     if (i >= 8) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7])
       if(Rule4(x,sd_3.2)==TRUE) {
+        print("rule 4")
           sum <- sum+1 }}
     
     if (i >= 6) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5])
       if(Rule5(x,sd_3.2)==TRUE) {
+        print("rule 5")
           sum <- sum+1 }}
     
     if (i >= 15) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7],Phase2_vec_2[i-8],Phase2_vec_2[i-9],Phase2_vec_2[i-10],Phase2_vec_2[i-11],Phase2_vec_2[i-12],Phase2_vec_2[i-13],Phase2_vec_2[i-14])
       if(Rule6(x,sd_3.2)==TRUE) {
+        print("rule 6")
           sum <- sum+1 }}
     
     if (i >= 14) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7],Phase2_vec_2[i-8],Phase2_vec_2[i-9],Phase2_vec_2[i-10],Phase2_vec_2[i-11],Phase2_vec_2[i-12],Phase2_vec_2[i-13])
       if(Rule7(x,sd_3.2)==TRUE) {
+        print("rule 7")
           sum <- sum+1 }}
     
         if (i >= 8) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7])
       if(Rule8(x,sd_3.2)==TRUE) {
+          print("rule 8")
           sum <- sum+1 }}
-    
     
     if (sum > 0){
       print(i)
       break}
-    
-    
 }
 
 ```
 
-In the time periods between days 51-100 there were no alarms. I've tried simulating for more days and the first alarm came on the 131 day (181 from day 1). If had an alarm, it would have been a false alarm. the reason for that is that I know the real distribution of the data because I have generated it and I know there the mean and the standard deviation hasn't changed.
+In the time period between days 51-100 there was no alarm. I've tried generating data using different seeds to make sure that the WECO detectors I have implemented work correctly. If I had an alarm, it would have been a false alarm. the reason for that is that I know the real distribution of the data because I have generated it and I know the mean and the standard deviation hasn't changed, hence it could only be false alarm.
 
+# Question 4
 
+## 4.1
 ```{r, echo=TRUE}
-paste("4.1")
-library(FrF2)
 design <- FrF2(nruns = 8, nfactors = 5)
+```
 
-paste("4.2")
-paste("The alising structure of this planning is:")
-
-paste("Aliases of treatment effects that are aliased with block main effects:")
+## 4.2
+```{r}
+print("The alising structure of this planning is:")
+print("Aliases of treatment effects that are aliased with block main effects:")
 design.info(design)$aliased[2] # print !!!
-paste("Aliases of Two-Factor Interactions:")
+print("Aliases of Two-Factor Interactions:")
 design.info(design)$aliased[3]
 
 ```
+# Question 5
 
-
-
-
-
+## 5.1
 ```{r, echo=TRUE}
-paste("5.1")
 set.seed(seed)
 n <- 100
 p <- 10
@@ -354,20 +356,27 @@ X <- matrix(rnorm(n*p), nrow = n)
 mod <- 2^15
 beta <- rep((seed %/% mod)/mod, p)
 y <- exp(X %*% beta)
-
 ```
-5.2. The name of the model which we generated the data from is: Accelerated Life model
+
+## 5.2.
+
+The name of the model which we generated the data from is: Accelerated Life model
+
+## 5.3
+The real effects are:
+
 ```{r, echo=TRUE}
-paste("5.3")
-paste(beta)
-paste("The real effect size of each attribute is:")
+
 for (i in 1:10)
 {
   temp<- paste("beta", i,":", beta[i])
   (print(temp))
 }
 
-paste("5.4")
+```
+
+## 5.4
+```{r, echo=TRUE}
 data5 <- data.frame(y,X)
 lm.1 <-lm(log(y)~.,data5)
 paste("The estimated effect size of each attribute is:")
@@ -377,16 +386,14 @@ for (i in 2:11)
   (print(temp))
 }
 
+```
 
-paste("5.5")
-
+## 5.5
+```{r}
 vec_to_predict <-data.frame(1,1,1,1,1,1,1,1,1,1)
 colnames(vec_to_predict) <- c("X1","X2","X3","X4","X5", "X6", "X7" ,"X8" ,"X9", "X10")
 log_life_exp <- predict(lm.1,vec_to_predict)
 excpted_life <- exp(log_life_exp)
-
-to_print <- paste("The expected life predicted is:", excpted_life)
-print(to_print )
 ```
 
-
+The expected life predicted is: `r excpted_life`
