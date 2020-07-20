@@ -9,7 +9,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # install.packages("IQCC")
+install.packages("FrF2")
 library(IQCC)
+library(FrF2)
 ```
 
 ## Q1
@@ -208,9 +210,9 @@ Rule1 <- function(x, sd){
 Rule2 <- function(x, sd){
     result <- FALSE
       if( (sum(x > CL3[2]+2*sd && x < CL3[2]+3*sd )) > 1) # although the "and" is unnecessary because the first rule is always checked first
-        result = TRUE
+        {result = TRUE}
       if( (sum(x < CL3[2]-2*sd && x > CL3[2]-3*sd ))> 1 ) # although the "and" is unnecessary because the first rule is always checked first
-        result = TRUE
+        {result = TRUE}
       return(result)
      }
 
@@ -219,17 +221,17 @@ Rule2 <- function(x, sd){
 Rule3 <- function(x, sd){
     result <- FALSE
      if( (sum(x > CL3[2]+ 1*sd))>=4)
-       result = TRUE
+       {result = TRUE}
      if( (sum(x < CL3[2]- 1*sd))>=4)
-       result = TRUE
+       {result = TRUE}
      return(result)
      }
 
 
 Rule4 <- function(x,sd){
     result <- FALSE
-     if( sum(x > CL3[2]) >=8) result <- TRUE
-     if( sum(x < -CL3[2])>=8) result <- TRUE
+     if( (sum(x > CL3[2])) >=8) {result <- TRUE}
+     if( (sum(x < -CL3[2]))>=8) {result <- TRUE}
      return(result)
 }
 
@@ -257,8 +259,7 @@ for(i in 1:50){
       print(i)
       break}
 }
-
-
+paste("In the time periods between days 51-100 there were no alerts. I've tried simulating for more days and the first alert came on the 131 day (181 from day 1). If had an alarm, it would have been a false alarm. the reason for that is that I know the real distribution of the data because I have generated it and I know there the mean and the standard deviation hasn't changed.")
 
 ```
 
@@ -266,11 +267,17 @@ for(i in 1:50){
 
 
 ```{r, echo=TRUE}
-bb <- c(3,3,2)
+paste("4.1")
+library(FrF2)
+design <- FrF2(nruns = 8, nfactors = 5)
 
+paste("4.2")
+paste("The alising structure of this planning is:")
 
-re <- if(sum(bb > 2 ) >1) re = TRUE
-print(re)
+paste("Aliases of treatment effects that are aliased with block main effects:")
+design.info(design)$aliased[2] # print !!!
+paste("Aliases of Two-Factor Interactions:")
+design.info(design)$aliased[3]
 
 ```
 
@@ -280,7 +287,7 @@ print(re)
 
 ```{r, echo=TRUE}
 paste("5.1")
-seed <- 204166524
+seed <- 203740246
 set.seed(seed)
 n <- 100
 p <- 10
@@ -289,6 +296,25 @@ mod <- 2^15
 beta <- rep((seed %/% mod)/mod, p)
 y <- exp(X %*% beta)
 
+
+paste("5.2")
+paste("The name of the model which we generated the data from is: Accelerated Life model")
+
+paste("5.3")
+paste(beta)
+
+past
+data5 <- data.frame(y,X)
+lm.1 <-lm(log(y)~.,data5)
+
+coef(lm.1)
+
+paste("5.5")
+
+vec <-data.frame(1,1,1,1,1,1,1,1,1,1)
+colnames(vec) <- c("X1","X2","X3","X4","X5", "X6", "X7" ,"X8" ,"X9", "X10")
+log_life_exp <- predict(lm.1,vec)
+excpted_life <- exp(life_exp)
 ```
 
 
