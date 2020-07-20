@@ -1,111 +1,96 @@
 ---
-title: "204166524"
-author: '204166524'
-date: "19 7 2020"
-output: html_document
+title: "Industrial Statistics (QE final assignment)"
+author: 'ID: 204166524'
+date: "19.7.2020"
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# install.packages("IQCC")
-install.packages("FrF2")
-library(IQCC)
-library(FrF2)
+# Libraries
+```{r}
+suppressPackageStartupMessages(library(IQCC)) # Don't show me the startup messages
+suppressPackageStartupMessages(library(FrF2))
 ```
 
-## Q1
-
+# Question 1
+## 1.1
 ```{r, echo=TRUE}
-paste("1.1")
 seed <- 204166524
+
 set.seed(seed)
 x <- rnorm(100)
 ```
+## 1.2
+The first observation in the data is: `r x[1]`
 
-```{r, echo=TRUE}
-paste("1.2")
-paste(" The first observation in the data is: ", x[1])
-```
-
-```{r, echo=TRUE}
-paste("1.3")
+## 1.3
+```{r}
 mu <- mean(x)
 USL <- 2
 LSL <- -2
 range1 <- max(x)- min(x)
 d2 <- d2(length(x))
-paste("d2 : ", d2)
 sigma <- (range1)/d2
 Cpu <- (USL-mu)/(3*sigma)
 Cpl <- (mu-LSL)/(3*sigma)
-paste("Mean : ",mu )
-paste("Range : ",range1 )
-paste("Cpu :", Cpu)
-paste("Cpl :", Cpl)
 Cpk <- min(c(Cpu,Cpl))
-paste ("Cpk : " , Cpk)
-
 ```
+The $C_{pk}$ value is: $C_{pk} =$ `r Cpk` 
 
+
+## 1.4
 ```{r, echo=TRUE}
-paste("1.4")
 Cp <- ((USL-LSL)/(6*sigma))
-paste("Cp : ",Cp)
 n <- 100
 alpha <- 0.05
 L_Limit <- Cp*sqrt(qchisq ( ( (alpha)/2) ,(n-1) )/ (n-1))
 U_Limit <- Cp*sqrt(qchisq ( ( (1-(alpha) )/ 2), (n-1))/ (n-1))
-
-
-paste( "The interval estimation for Capability Indexes is: [", L_Limit, ",",U_Limit , "]" )
-
 ```
+The interval estimation for $C_{p}$ is: 
 
+$C_{p} \in \big[$ `r L_Limit` , `r U_Limit` $\big]$
+# Question 2
+## 2.1
 ```{r, echo=TRUE}
-paste("2.1")
-seed <- 203740246
 set.seed(seed)
 periods.1 <- 100
 phase.1 <- rnorm(periods.1)
 mu0 <- mean(phase.1)
 sd0 <- sd(phase.1)
-
 ```
 
+## 2.2
 ```{r, echo=TRUE}
-paste("2.2")
 L <- 3
 CL <- mu0
 n <- length(periods.1)
-UCL <- CL+L*sd0/sqrt(1) # double check~!!!!!!!!
-LCL <- CL-L*sd0/sqrt(1) #  double check~!!!!!!!!
-paste("The control limits are:")
-paste("LCL :", LCL)
-paste("UCL :", UCL)
-
+UCL <- CL+L*sd0/sqrt(1)
+LCL <- CL-L*sd0/sqrt(1)
 ```
+The control limits are:
+
+LCL : `r LCL`
+
+UCL : `r UCL`
+
+## 2.3
+
+From the code above, the actual expectancy is 0 and the standard deviation is 1.
+It can be inferred from the forth line of the attached code,
+when we sample 100 random numbers from standard normal distribution (these are the default values of the function)
+
+## 2.4
 
 ```{r, echo=TRUE}
-paste("2.3")
-paste("From the code above, the actual expectancy is 0 and the standard deviation is 1.
-       It can be inferred from the forth line of the attached code,
-       when we sample 100 random numbers from standard normal distribution")
-
-```
-
-```{r, echo=TRUE}
-paste("2.4")
-seed <- 204166524
 set.seed(seed)
 periods.2 <- 1e4
 phase.2 <- rnorm(periods.2) # generate another 10,000 samples
-
 ```
+## 2.5
 
 ```{r, echo=TRUE}
-paste("2.5")
-alpha <- 2700/1e6
+alpha <- 2700/ 1e6 # l=3, meaning 2700 PPM 
 ARL0 <- 1/alpha
 
 l <- c(0)
@@ -113,27 +98,26 @@ gap <- 0
 for (i in 1:length(phase.2)){
   gap <- gap+1
   if (phase.2[i] > UCL || phase.2[i] < LCL) {
-    l<-c(l,gap)
+    l<-c(l,gap) 
     gap <- 0 
   }
 }
 
-l[-c(1)] # remove the first elemnt of the list 
+l <- l[-c(1)] # remove the first elemnt of the list 
 simulated_ARL0 <- mean(l)
-paste("simulated_ARL0 :", simulated_ARL0)
-paste("We can see that the ARL0 is smaller in the simulation I made, which means more false alerms are produced.")
-
 ```
+Simulated_ARL0 : `r simulated_ARL0`
 
+We can see that the ARL0 is smaller in the simulation I made, which means more false alerms are produced.
 
+# Question 3
+## 3.1
 ```{r, echo=TRUE}
-paste("3.1")
-seed <- 204166524
-set.seed(seed)
+set.seed(seed + 1)
 periods <- 100
 p <- 5
-alpha_star <- 0.1
-alpha <- 1 - (1 - alpha_star)^(1/p)
+alpha <- 0.1
+alpha_star <- 1 - (1 - alpha)^(1/p)
 L <- -qnorm(alpha/2)
 data <- matrix(rnorm(periods*p), nrow = periods)
 Phase1_mat<- data[1:50,] # first 50 rows of the data for phase 1
@@ -146,9 +130,6 @@ SD3 <- rep(NA, 5)
 UCL3 <- rep(NA, 5)
 LCL3 <- rep(NA, 5)
 
-CL33 <-colMeans(Phase1_mat)
-SD33 <- apply(Phase1_mat, 2, sd)
-
 for (i in 1:5){
   temp_cl3 <- mean(Phase1_mat[1:50,i])
   temp_sd3 <- sd(Phase1_mat[1:50,i])
@@ -156,43 +137,48 @@ for (i in 1:5){
   CL3[i] <- temp_cl3
   SD3[i] <- temp_sd3
   
-  UCL3[i] <- CL3[i]+L*SD3[i]/sqrt(1) # emprical distbition
-  LCL3[i] <- CL3[i]-L*SD3[i]/sqrt(1) # emprical distbition
+  
+  #### choose 1 option 
+  UCL3[i] <- quantile(Phase1_mat[1:50,i],1-alpha_star/2)
+  LCL3[i] <- quantile(Phase1_mat[1:50,i],alpha_star/2)
+  
+  # UCL3[i] <- CL3[i]+L*SD3[i]/sqrt(1) # emprical distbition
+  # LCL3[i] <- CL3[i]-L*SD3[i]/sqrt(1) # emprical distbition
 }
 for (p in 1:5){
-paste("p) LCL :", LCL3[p], "UCL :", UCL3[p]) # check why not printing ~!!!!
+  temp_paste <- paste("Variable ", p, " LCL : ", LCL3[p], "UCL :", UCL3[p] )
+  print(temp_paste) # check why not printing ~!!!!
 }
 ```  
-  
+## 3.2
   
 ```{r, echo=TRUE}
-paste("3.2")
-
 x <- Phase1_mat
 n <- nrow(Phase1_mat)
 mu0 <- CL3
-sigma0 <- cor(Phase1_mat) # cov matrix
-sigma0.inv <-  sigma0.inv <- solve(sigma0) # inverse cov matrix
+sigma0 <- cov(Phase1_mat) # cov matrix
+sigma0.inv <- solve(sigma0) # inverse cov matrix
 valid <- sigma0 %*% sigma0.inv # sanity check
 
-prmatrix(sigma0.inv, rowlab =, collab =,
-         quote = TRUE, right = FALSE, na.print = NULL)
+
 
 t_squre <- n * (x-mu0) %*% sigma0.inv %*% t((x-mu0))
 UCL_3.2 <- qchisq ( ( (1-(alpha) )), (5))
 
-paste("Hotteling’s UCL: ", UCL_3.2)
-
-paste("when alpha is set to 10%, the ARL0 is 1/alpha :", 1/0.1)
-
 ```
 
+The inverse covariance matrix is:
+``` {r}
+prmatrix(sigma0.inv, rowlab =, collab =,
+         quote = TRUE, right = FALSE, na.print = NULL)
+```
 
+Hotteling’s UCL:  `r UCL_3.2`
 
+When alpha is set to $10$%, $ARL_{0} = \frac{1}{\alpha} = \frac{1}{0.1} = 10$
 
+## 3.3
 ```{r, echo=TRUE}
-paste("3.3")
-
 Phase2_vec_2 <- data[51:100,2]
 n <- nrow(Phase2_vec_2)
 sd_3.2 <- SD3[2] 
@@ -230,10 +216,61 @@ Rule3 <- function(x, sd){
 
 Rule4 <- function(x,sd){
     result <- FALSE
-     if( (sum(x > CL3[2])) >=8) {result <- TRUE}
-     if( (sum(x < -CL3[2]))>=8) {result <- TRUE}
+     if( (sum(x > CL3[2])) >=8)
+       {result <- TRUE}
+     if( (sum(x < -CL3[2]))>=8)
+       {result <- TRUE}
      return(result)
 }
+
+
+Rule5 <- function(x,sd){
+    increasing <- 0
+    decreasing <- 0
+    result <- FALSE
+     for (i in 1:5){
+       if(x[i] < x[i+1]) {
+         increasing <- increasing + 1 
+       }
+     if(x[i] > x[i+1]) {
+         decreasing <- decreasing + 1 
+       }
+     }
+    if (increasing == 5 || decreasing ==5)
+    {result <- TRUE}
+return (result) 
+}
+
+Rule6 <- function(x,sd){
+    result <- FALSE
+     if( (sum(x < CL3[2] + 1*sd && x > CL3[2] - 1*sd)) >=15)
+       {result <- TRUE}
+     return(result)
+}
+
+Rule7 <- function(x,sd){
+  x <- x/abs(x)
+    result <- FALSE
+    count <- 0
+    for (i in 1:13)
+    {
+      if (x[i] * x[i+1] == -1)
+      {count <- count + 1}
+    }
+    if (count == 13)
+        {result <- TRUE}
+     return(result)
+}
+
+Rule8 <- function(x, sd){
+    result <- FALSE
+     if( (sum(x > CL3[2]+ 1*sd))>=8)
+       {result = TRUE}
+     if( (sum(x < CL3[2]- 1*sd))>=8)
+       {result = TRUE}
+     return(result)
+     }
+
 
 sum <- 0
 for(i in 1:50){
@@ -254,16 +291,39 @@ for(i in 1:50){
     if (i >= 8) {
     x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7])
       if(Rule4(x,sd_3.2)==TRUE) {
-        sum <- sum+1 }}
+          sum <- sum+1 }}
+    
+    if (i >= 6) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5])
+      if(Rule5(x,sd_3.2)==TRUE) {
+          sum <- sum+1 }}
+    
+    if (i >= 15) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7],Phase2_vec_2[i-8],Phase2_vec_2[i-9],Phase2_vec_2[i-10],Phase2_vec_2[i-11],Phase2_vec_2[i-12],Phase2_vec_2[i-13],Phase2_vec_2[i-14])
+      if(Rule6(x,sd_3.2)==TRUE) {
+          sum <- sum+1 }}
+    
+    if (i >= 14) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7],Phase2_vec_2[i-8],Phase2_vec_2[i-9],Phase2_vec_2[i-10],Phase2_vec_2[i-11],Phase2_vec_2[i-12],Phase2_vec_2[i-13])
+      if(Rule7(x,sd_3.2)==TRUE) {
+          sum <- sum+1 }}
+    
+        if (i >= 8) {
+    x<-c(Phase2_vec_2[i],Phase2_vec_2[i-1],Phase2_vec_2[i-2],Phase2_vec_2[i-3],Phase2_vec_2[i-4],Phase2_vec_2[i-5],Phase2_vec_2[i-6],Phase2_vec_2[i-7])
+      if(Rule8(x,sd_3.2)==TRUE) {
+          sum <- sum+1 }}
+    
+    
     if (sum > 0){
       print(i)
       break}
+    
+    
 }
-paste("In the time periods between days 51-100 there were no alerts. I've tried simulating for more days and the first alert came on the 131 day (181 from day 1). If had an alarm, it would have been a false alarm. the reason for that is that I know the real distribution of the data because I have generated it and I know there the mean and the standard deviation hasn't changed.")
 
 ```
 
-
+In the time periods between days 51-100 there were no alarms. I've tried simulating for more days and the first alarm came on the 131 day (181 from day 1). If had an alarm, it would have been a false alarm. the reason for that is that I know the real distribution of the data because I have generated it and I know there the mean and the standard deviation hasn't changed.
 
 
 ```{r, echo=TRUE}
@@ -287,7 +347,6 @@ design.info(design)$aliased[3]
 
 ```{r, echo=TRUE}
 paste("5.1")
-seed <- 203740246
 set.seed(seed)
 n <- 100
 p <- 10
@@ -296,25 +355,38 @@ mod <- 2^15
 beta <- rep((seed %/% mod)/mod, p)
 y <- exp(X %*% beta)
 
-
-paste("5.2")
-paste("The name of the model which we generated the data from is: Accelerated Life model")
-
+```
+5.2. The name of the model which we generated the data from is: Accelerated Life model
+```{r, echo=TRUE}
 paste("5.3")
 paste(beta)
+paste("The real effect size of each attribute is:")
+for (i in 1:10)
+{
+  temp<- paste("beta", i,":", beta[i])
+  (print(temp))
+}
 
-past
+paste("5.4")
 data5 <- data.frame(y,X)
 lm.1 <-lm(log(y)~.,data5)
+paste("The estimated effect size of each attribute is:")
+for (i in 2:11)
+{
+  temp<- paste("beta", i-1,":", coef(lm.1)[i])
+  (print(temp))
+}
 
-coef(lm.1)
 
 paste("5.5")
 
-vec <-data.frame(1,1,1,1,1,1,1,1,1,1)
-colnames(vec) <- c("X1","X2","X3","X4","X5", "X6", "X7" ,"X8" ,"X9", "X10")
-log_life_exp <- predict(lm.1,vec)
-excpted_life <- exp(life_exp)
+vec_to_predict <-data.frame(1,1,1,1,1,1,1,1,1,1)
+colnames(vec_to_predict) <- c("X1","X2","X3","X4","X5", "X6", "X7" ,"X8" ,"X9", "X10")
+log_life_exp <- predict(lm.1,vec_to_predict)
+excpted_life <- exp(log_life_exp)
+
+to_print <- paste("The expected life predicted is:", excpted_life)
+print(to_print )
 ```
 
 
